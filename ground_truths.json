@@ -1,0 +1,42 @@
+[
+  {
+    "question": "The documentation explains how to set a 'Custom Login View' that users are redirected to when they try to access a protected page. Which specific Python class and attribute implements this configuration?",
+    "ground_truth": "The custom login view is configured using the `login_view` attribute of the `LoginManager` class."
+  },
+  {
+    "question": "According to the documentation, how should a custom user class behave if an invalid ID is passed to the `user_loader` callback? Which file handles removing that invalid ID from the active session if this scenario occurs?",
+    "ground_truth": "The documentation specifies that the callback must return `None` instead of raising an exception if the ID is invalid. The framework's core configuration code then automatically removes the ID from the session and continues processing."
+  },
+  {
+    "question": "If a developer wants to authenticate users via an API token passed through a header parameter instead of using traditional cookies, what specific callback decorator must they define? Provide a brief code reference showing how it accesses the request data.",
+    "ground_truth": "Developers should use the `@login_manager.request_loader` callback instead of a standard user loader. Unlike `user_loader` which expects a string ID, the `request_loader` callback accepts the active Flask `request` object directly, allowing the code to pull keys from `request.headers.get('Authorization')`."
+  },
+  {
+    "question": "Trace the execution flow when the `@login_required` decorator is triggered by an unauthenticated user. Which function is called to handle the unauthorized request?",
+    "ground_truth": "When `@login_required` is triggered by an anonymous user, it calls the `LoginManager.unauthorized()` method, which in turn flashes a message and redirects the user to the configured `login_view`."
+  },
+  {
+    "question": "When a login session protection check fails in `strong` mode for a non-permanent session, what exact cleanup actions occur on the session dictionary, and what specific Flask signal is triggered?",
+    "ground_truth": "In `strong` mode, if session protection fails, the system iterates through `SESSION_KEYS` and pops each key from the session dictionary to completely wipe it. It also sets `session['_remember'] = 'clear'`. Finally, it triggers the `session_protected` signal."
+  },
+  {
+    "question": "Trace the data flow of `encode_cookie()`. What standard hashing algorithm and helper methodology are used to protect the user ID payload from being altered by client-side cookie tampering?",
+    "ground_truth": "`encode_cookie()` accepts a string payload and generates a secure cryptographic signature using `_cookie_digest()`. It calculates an HMAC signature using the `SHA-512` hashing function combined with the application's configured `SECRET_KEY`. The final cookie format concatenates the raw payload and the digest using a pipe (`|`) character as a separator."
+  },
+  {
+    "question": "When a user triggers the `logout_user()` function, what exact keys are popped out of the Flask session dictionary, and how does the application signal to the browser that the 'remember me' cookie must be deleted?",
+    "ground_truth": "`logout_user()` structurally removes `_user_id`, `_fresh`, and `_id` from the active session dictionary if they exist. If a remember cookie is present, it updates the session by setting `session['_remember'] = 'clear'`, which subsequently causes `_update_remember_cookie()` to invoke `_clear_cookie()` during the request teardown phase."
+  },
+  {
+    "question": "What is the primary mechanism `flask-login` uses to remember a user's session across different requests?",
+    "ground_truth": "`flask-login` stores the user's ID inside the Flask `session` dictionary (which is backed by a secure cookie) under the key `_user_id`."
+  },
+  {
+    "question": "How does Flask-Login conceptually distinguish a 'fresh' login session from a 'non-fresh' session? What utility decorator protects sensitive actions like updating password or personal settings?",
+    "ground_truth": "A session is marked 'fresh' when a user initially authenticates within that session. It becomes 'non-fresh' when the session is closed and subsequently restored automatically via a 'remember me' cookie. Sensitive routes can be explicitly protected using the `fresh_login_required` decorator."
+  },
+  {
+    "question": "From a high-level architectural perspective, when Flask-Login needs to resolve who the current user is for an incoming request, what are the three distinct fallback mechanisms it checks, and in what order?",
+    "ground_truth": "When resolving the current user, the system first checks the active Flask Session for a `_user_id`. If the session is empty, it falls back to checking for a valid 'Remember Me' cookie on the user's browser. If that cookie is also missing or invalid, the final fallback is to check if a custom `request_loader` callback has been defined to load the user directly from the incoming HTTP request data (such as an API token header)."
+  }
+]
